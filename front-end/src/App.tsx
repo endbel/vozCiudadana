@@ -1,6 +1,7 @@
 import "./index.css";
 import Sidebar from "./components/sidebar/Sidebar";
 import Map from "./components/map/Map";
+// import StepCards from "./components/steps"
 
 function App() {
   return (
@@ -12,6 +13,10 @@ function App() {
       <div className="flex-1 relative">
         <Map className="w-full h-full" />
       </div>
+
+      {/* <div>
+        <StepCards />
+      </div> */}
     </div>
   );
 }
