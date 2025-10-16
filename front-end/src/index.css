@@ -1,1 +1,39 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* Estilos para pantalla completa */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Estilos para iconos personalizados */
+.custom-leaflet-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-leaflet-icon:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Zoom nativo de Leaflet - Ocultar marcadores en zoom bajo */
+.leaflet-zoom-level-0 .custom-leaflet-icon,
+.leaflet-zoom-level-1 .custom-leaflet-icon,
+.leaflet-zoom-level-2 .custom-leaflet-icon,
+.leaflet-zoom-level-3 .custom-leaflet-icon,
+.leaflet-zoom-level-4 .custom-leaflet-icon,
+.leaflet-zoom-level-5 .custom-leaflet-icon,
+.leaflet-zoom-level-6 .custom-leaflet-icon,
+.leaflet-zoom-level-7 .custom-leaflet-icon,
+.leaflet-zoom-level-8 .custom-leaflet-icon,
+.leaflet-zoom-level-9 .custom-leaflet-icon {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
