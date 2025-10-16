@@ -1,8 +1,9 @@
-import "./index.css";
+import FechaDeNacimiento from "./components/auth/FechaDeNacimiento";
+
 
 
 function App() {
-  return <> </>;
+  return <FechaDeNacimiento onSuccess={() => {}} />;
 }
 
 export default App;
