@@ -1,8 +1,29 @@
+// import { LineChartIcon } from "lucide-react";
+import { useState } from "react";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { Menu, X } from "lucide-react";
+
 export default function Sidebar() {
+  const [isEnabled, setIsEnabled] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 426px)');
+  const handleBurgerMenu = () => {
+    console.log(isEnabled);
+    console.log(isMobile);
+    
+    setIsEnabled(!isEnabled);//verificar si esta visible mi menu hamburguesa cuando do 
+
+  };
   return (
-    <div className="w-80 h-full bg-white border-r border-gray-200 flex flex-col shadow-lg z-10 relative">
+<>
+
+{
+    (!isMobile || isEnabled) && (
+        <div className="w-80 h-full bg-white border-r border-gray-200 flex flex-col shadow-lg z-10 relative">
       {/* HEADER SECTION */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+       {isEnabled && isMobile && (
+        <button onClick={handleBurgerMenu}> <X className="w-6 h-6 text-gray-500" /></button>
+       )}
         <h1 className="text-xl font-semibold text-gray-900">
           La Voz ciudadana
         </h1>
@@ -127,5 +148,18 @@ export default function Sidebar() {
         </p>
       </div>
     </div>
+    )
+}
+{
+  (isMobile && isEnabled === false) && (
+      <button
+        className="absolute top-4 right-4 z-50 p-2 border border-gray-300 text-gray-500 rounded-md shadow-md bg-white"
+        onClick={handleBurgerMenu}
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+  )
+}
+  </>
   );
 }
