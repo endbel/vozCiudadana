@@ -1,16 +1,19 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './index.css'
-import { div } from 'motion/react-client'
-import StepsCard from './components/steps'
+import "./index.css";
+import Sidebar from "./components/sidebar/Sidebar";
+import Map from "./components/map/Map";
 
 function App() {
   return (
-    <div>
-      <StepsCard/>
+    <div className="w-screen h-screen flex">
+      {/* Sidebar fijo a la izquierda */}
+      <Sidebar />
+
+      {/* Mapa ocupa el resto del espacio */}
+      <div className="flex-1 relative">
+        <Map className="w-full h-full" />
+      </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
