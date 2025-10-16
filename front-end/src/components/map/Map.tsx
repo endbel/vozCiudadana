@@ -85,7 +85,7 @@ const makersPrueba: MarkerData[] = [
 export default function Map({
   center = [19.4326, -99.1332],
   zoom = 13,
-  className = "h-screen w-screen fixed top-0 left-0 z-0",
+  className = "w-full h-full",
 }: MapProps) {
   return (
     <div className={className}>
