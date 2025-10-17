@@ -1,23 +1,19 @@
-import "./index.css";
-import Sidebar, { type Report } from "./components/sidebar/Sidebar";
+import type { LatLngExpression } from "leaflet";
+import { useEffect, useMemo, useState } from "react";
+import FechaDeNacimiento from "./components/auth/FechaDeNacimiento";
+import LoadingSpinner from "./components/loading/LoadinSpinner";
 import Map from "./components/map/Map";
-import { useEffect, useState, useMemo } from "react";
+import DetalleIncidencia from "./components/modals/DetalleIncidencia";
+import ReportarIncidencia from "./components/modals/ReportarIncidencia";
+import NotFound from "./components/notFound/NotFound";
+import Sidebar, { type Report } from "./components/sidebar/Sidebar";
+import StepCards from "./components/steps";
+import { UseNavigator } from "./hooks/useNavigator";
+import "./index.css";
+import { createReport, getReportsByZone } from "./lib/api/reports";
 import { calculateAge } from "./lib/calculateAge";
 import { compressImage } from "./lib/compressUpload";
 import { fileToDataURL } from "./lib/fileUtils";
-import FechaDeNacimiento from "./components/auth/FechaDeNacimiento";
-import ReportarIncidencia from "./components/modals/ReportarIncidencia";
-import DetalleIncidencia from "./components/modals/DetalleIncidencia";
-<<<<<<< HEAD
-import StepCards from "./components/steps";
-=======
-import StepCards from "./components/Steps";
-import { UseNavigator } from "./hooks/useNavigator";
-import { latLng, type LatLngExpression } from "leaflet";
-import LoadingSpinner from "./components/loading/LoadinSpinner";
-import NotFound from "./components/notFound/NotFound";
-import { createReport, getReportsByZone } from "./lib/api/reports";
->>>>>>> 5577b8d2d5696c9c2f616d319d49c8c6e1321957
 
 export interface CreateReportForm {
   title: string;
@@ -73,7 +69,7 @@ function App() {
     const fetchReports = async () => {
       try {
         // Usar la ubicación formateada que ya maneja los defaults
-        const [lat, long] = locationFormated as [number, number];
+        // const [lat, long] = locationFormated as [number, number];
         const res = await getReportsByZone(
           -26.080103959386527,
           -58.27712643314597
