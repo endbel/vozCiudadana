@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useState } from "react";
 
 type Incident = {
   category: string;
@@ -16,8 +17,11 @@ type DetalleIncidenciaProps = {
   incident: Incident | null;
 };
 
-
-const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({ isOpen, onClose, incident }) => {
+const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({
+  isOpen,
+  onClose,
+  incident,
+}) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   if (!isOpen || !incident) {
@@ -26,9 +30,9 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({ isOpen, onClose, 
 
   // Imágenes de ejemplo si no hay imágenes proporcionadas
   const images = incident.images || [
-    '/api/placeholder/400/300',
-    '/api/placeholder/400/300',
-    '/api/placeholder/400/300'
+    "/api/placeholder/400/300",
+    "/api/placeholder/400/300",
+    "/api/placeholder/400/300",
   ];
 
   const nextImage = () => {
@@ -44,13 +48,21 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({ isOpen, onClose, 
   };
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50 p-4"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
       onClick={onClose}
     >
-      <main 
+      <motion.main
         className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
+        initial={{ scale: 0.97, rotateX: 0 }}
+        animate={{
+          scale: 1,
+          rotateX: 6,
+          boxShadow: "0px 12px 32px rgba(0,0,0,0.18)",
+        }}
+        whileHover={{ scale: 1.03, rotateX: 0 }}
+        transition={{ type: "spring", stiffness: 200, damping: 20 }}
       >
         <button
           onClick={onClose}
@@ -62,12 +74,16 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({ isOpen, onClose, 
         <h2 className="text-center text-3xl font-extrabold mb-7 mt-2 text-gray-800 tracking-tight flex-shrink-0">
           Detalles del Incidente
         </h2>
-        
+
         <div className="flex-1 overflow-y-auto space-y-6">
           {/* Categoría y Título */}
           <div>
-            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{incident.category}</p>
-            <p className="text-xl font-bold text-gray-900 mt-1">{incident.title}</p>
+            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+              {incident.category}
+            </p>
+            <p className="text-xl font-bold text-gray-900 mt-1">
+              {incident.title}
+            </p>
           </div>
 
           <div className="border-t border-gray-200"></div>
@@ -80,7 +96,9 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({ isOpen, onClose, 
               </div>
               <div>
                 <p className="text-sm text-gray-600">Ubicación</p>
-                <p className="text-sm text-gray-800 font-medium font-mono">{incident.location}</p>
+                <p className="text-sm text-gray-800 font-medium font-mono">
+                  {incident.location}
+                </p>
               </div>
             </div>
             <div className="flex items-start space-x-3">
@@ -89,7 +107,9 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({ isOpen, onClose, 
               </div>
               <div>
                 <p className="text-sm text-gray-600">Reportado</p>
-                <p className="text-sm text-gray-800 font-medium">{incident.reportedAt}</p>
+                <p className="text-sm text-gray-800 font-medium">
+                  {incident.reportedAt}
+                </p>
               </div>
             </div>
           </div>
@@ -98,22 +118,26 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({ isOpen, onClose, 
 
           {/* Descripción */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Descripción</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              Descripción
+            </h3>
             <p className="text-gray-600 text-base">{incident.description}</p>
           </div>
 
           {/* Carrusel de imágenes */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Imágenes</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              Imágenes
+            </h3>
             <div className="relative">
               {/* Imagen principal */}
               <div className="relative w-full h-64 bg-gray-200 rounded-lg overflow-hidden">
-                <img 
-                  src={images[currentImageIndex]} 
+                <img
+                  src={images[currentImageIndex]}
                   alt={`Imagen ${currentImageIndex + 1} del incidente`}
                   className="w-full h-full object-cover"
                 />
-                
+
                 {/* Botones de navegación */}
                 {images.length > 1 && (
                   <>
@@ -146,13 +170,13 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({ isOpen, onClose, 
                       key={index}
                       onClick={() => goToImage(index)}
                       className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                        index === currentImageIndex 
-                          ? 'border-blue-500' 
-                          : 'border-gray-300 hover:border-gray-400'
+                        index === currentImageIndex
+                          ? "border-blue-500"
+                          : "border-gray-300 hover:border-gray-400"
                       }`}
                     >
-                      <img 
-                        src={image} 
+                      <img
+                        src={image}
                         alt={`Thumbnail ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
@@ -163,7 +187,7 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({ isOpen, onClose, 
             </div>
           </div>
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 };

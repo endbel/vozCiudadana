@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { useState } from "react";
 
 interface ReportarIncidenciaProps {
@@ -98,12 +99,20 @@ export default function ReportarIncidencia({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
       onClick={onClose}
     >
-      <main
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in flex flex-col max-h-[90vh]"
+      <motion.main
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in flex flex-col max-h-[90vh] animate-modalFadeIn"
         onClick={(e) => e.stopPropagation()}
+        initial={{ scale: 0.97, rotateX: 0 }}
+        animate={{
+          scale: 1,
+          rotateX: 6,
+          boxShadow: "0px 12px 32px rgba(0,0,0,0.18)",
+        }}
+        whileHover={{ scale: 1.03, rotateX: 0 }}
+        transition={{ type: "spring", stiffness: 200, damping: 20 }}
       >
         <button
           onClick={onClose}
@@ -262,7 +271,7 @@ export default function ReportarIncidencia({
             </button>
           </form>
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }

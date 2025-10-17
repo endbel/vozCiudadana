@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import type { Report } from "./Sidebar";
 
 interface ReportCardProps {
@@ -13,13 +14,18 @@ export default function ReportCard({ report, onClick }: ReportCardProps) {
   };
 
   return (
-    <div
-      className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+    <motion.div
+      className="p-4 cursor-pointer transition-colors rounded-xl"
       onClick={handleClick}
+      whileHover={{
+        boxShadow: "0px 4px 16px rgba(0,0,0,0.15)",
+        backgroundColor: "#e0f2fe",
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
       {/* Category Tag */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full cursor-pointer">
           {report.category}
         </span>
       </div>
@@ -34,6 +40,6 @@ export default function ReportCard({ report, onClick }: ReportCardProps) {
 
       {/* Date */}
       <p className="text-xs text-gray-500">{report.date}</p>
-    </div>
+    </motion.div>
   );
 }

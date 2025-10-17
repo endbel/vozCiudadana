@@ -6,7 +6,7 @@ import { calculateAge } from "./lib/calculateAge";
 import FechaDeNacimiento from "./components/auth/FechaDeNacimiento";
 import ReportarIncidencia from "./components/modals/ReportarIncidencia";
 import DetalleIncidencia from "./components/modals/DetalleIncidencia";
-import StepCards from "./components/Steps";
+import StepCards from "./components/steps";
 
 interface CreateReportForm {
   title: string;
