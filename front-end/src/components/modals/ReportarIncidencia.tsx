@@ -11,14 +11,14 @@ interface ReportarIncidenciaProps {
 }
 
 const categorias = [
-  "Bache",
-  "Alumbrado",
-  "Graffiti",
-  "Accidente",
-  "Inundación",
-  "Basura",
-  "Árbol caído",
-  "Otro",
+  { field: "Bache", label: "POTHOLE" },
+  { field: "Alumbrado", label: "STREET_LIGHT" },
+  { field: "Graffiti", label: "GRAFFITI" },
+  { field: "Accidente", label: "ACCIDENT" },
+  { field: "Inundación", label: "FLOOD" },
+  { field: "Basura", label: "GARBAGE" },
+  { field: "Árbol caído", label: "FALLEN_TREE" },
+  { field: "Otro", label: "OTHER" },
 ];
 
 export default function ReportarIncidencia({
@@ -133,16 +133,16 @@ export default function ReportarIncidencia({
             <div className="grid grid-cols-2 gap-3 mb-7">
               {categorias.map((cat) => (
                 <button
-                  key={cat}
+                  key={cat.label}
                   type="button"
                   className={`border rounded-lg py-2 px-2 font-semibold text-sm transition-all focus:outline-none shadow-sm ${
-                    categoria === cat
+                    categoria === cat.label
                       ? "bg-blue-100 border-blue-600 text-blue-700 ring-2 ring-blue-200"
                       : "bg-white border-gray-300 text-gray-700 hover:bg-blue-50"
                   }`}
-                  onClick={() => setCategoria(cat)}
+                  onClick={() => setCategoria(cat.label)}
                 >
-                  {cat}
+                  {cat.field}
                 </button>
               ))}
             </div>

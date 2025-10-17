@@ -28,7 +28,7 @@ export class ReportService {
     lat: number,
     long: number,
     radiusInMeters: number = 300,
-  ) {
+  ): Promise<ResponseReportDTO[]> {
     const EARTH_RADIUS_METERS = 6371000; // Radio de la Tierra en metros
     const now = new Date();
     const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
@@ -38,8 +38,11 @@ export class ReportService {
         SELECT
           r.id, 
           r.title, 
+          r.description,
           r.lat, 
           r.long, 
+          r.images,
+          r.category,
           r."createdAt",
           -- 1. Calcular la distancia en una columna temporal
           (${EARTH_RADIUS_METERS} * ACOS(
@@ -63,8 +66,21 @@ export class ReportService {
         distance_meters ASC;
     `;
 
-    const reports = await this.prisma.$queryRaw(query);
-    return reports;
+    const reports = (await this.prisma.$queryRaw(query)) as any[];
+
+    // Convertir los resultados raw al DTO ResponseReportDTO
+    return reports.map(
+      (report) =>
+        ({
+          id: report.id,
+          title: report.title,
+          description: report.description,
+          lat: report.lat,
+          long: report.long,
+          images: report.images,
+          category: report.category,
+        }) as ResponseReportDTO,
+    );
   }
 
   async createReport(data: CreateReportDTO) {

@@ -17,7 +17,9 @@ export interface Report {
   description: string;
   category: string;
   date: string;
-  images?: File[];
+  images?: File[] | string[]; // Permite tanto Files como URLs
+  lat?: number;
+  long?: number;
 }
 
 const categories = [

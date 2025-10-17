@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   NotFoundException,
+  Param,
   Post,
 } from '@nestjs/common';
 import { ReportService } from './report.service';
@@ -15,8 +16,6 @@ export class ReportController {
 
   @Post()
   create(@Body() dto: CreateReportDTO) {
-    console.log(dto);
-
     if (!dto.title) {
       throw new NotFoundException('Title is required');
     }
@@ -36,16 +35,19 @@ export class ReportController {
     }
   }
 
-  @Get('by-zone')
-  getByZone(@Body() data: { lat: number; long: number }) {
-    if (!data.lat) {
+  @Get('by-zone/:lat/:long')
+  getByZone(@Param('lat') lat: string, @Param('long') long: string) {
+    if (!lat) {
       throw new NotFoundException('Latitude is required');
     }
-    if (!data.long) {
+    if (!long) {
       throw new NotFoundException('Longitude is required');
     }
     try {
-      return this.reportService.getReportByCoordinates(data.lat, data.long);
+      return this.reportService.getReportByCoordinates(
+        Number(lat),
+        Number(long),
+      );
     } catch (err) {
       throw new BadRequestException(
         'Error fetching report by coordinates',
