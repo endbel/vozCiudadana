@@ -79,18 +79,6 @@ export const logout = (): void => {
   axios.post(`${API_BASE_URL}/auth/logout`);
 };
 
-// Función para obtener información del usuario desde el token
-export const getUserFromToken = (): any | null => {
-  const token = getToken();
-  if (!token || !isTokenValid(token)) return null;
-
-  try {
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch {
-    return null;
-  }
-};
-
 // Función para refresh del token (si implementas refresh tokens)
 export const refreshToken = async (): Promise<string | null> => {
   try {
