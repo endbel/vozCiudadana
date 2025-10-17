@@ -29,7 +29,7 @@ const FechaDeNacimiento: React.FC<FechaDeNacimientoProps> = ({
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 text-center animate-fade-in">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Bienvenido</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Bienvenido/a</h1>
         <p className="text-gray-500 mb-8">
           Para continuar, por favor verifica tu edad.
         </p>

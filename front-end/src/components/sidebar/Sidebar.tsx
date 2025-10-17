@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { CATEGORY_MAPPING } from "../../config/constants";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import ReportCard from "./ReportCard";
 
@@ -23,9 +24,7 @@ export interface Report {
   long?: number;
 }
 
-import { CATEGORIES } from "../../config/constants";
-
-const categories = CATEGORIES;
+const categories = CATEGORY_MAPPING;
 
 export default function Sidebar({
   onTutorialToggle,
@@ -102,17 +101,17 @@ export default function Sidebar({
               <div className="flex flex-wrap gap-1.5">
                 {categories.map((category) => (
                   <motion.button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
+                    key={category.label}
+                    onClick={() => setSelectedCategory(category.label)}
                     whileHover={{ y: -4, scale: 1.08 }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
                     className={`px-2 py-1 text-xs rounded-full transition-colors cursor-pointer ${
-                      selectedCategory === category
+                      selectedCategory === category.label
                         ? "bg-blue-100 text-blue-800 border border-blue-200"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
-                    {category}
+                    {category.field}
                   </motion.button>
                 ))}
               </div>

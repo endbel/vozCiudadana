@@ -1,9 +1,9 @@
 import { LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { APP_CONFIG, CATEGORY_MAPPING } from "../../config/constants";
 import { getAllReports } from "../../lib/api/reports";
 import { isAuthenticated, logout } from "../../services/authService";
-import { APP_CONFIG } from "../../config/constants";
 
 interface Report {
   id: string | number;
@@ -15,7 +15,11 @@ interface Report {
   lat?: number;
   long?: number;
 }
-
+// Utilidad para mapear el valor del backend al nombre en español
+const getCategoryName = (category: string) => {
+  const found = CATEGORY_MAPPING.find((c) => c.label === category);
+  return found ? found.field : category;
+};
 export default function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
@@ -177,7 +181,9 @@ export default function AdminPanel() {
                           {report.title}
                         </td>
                         <td className="px-4 py-3 text-xs text-blue-700 font-bold">
-                          {report.category}
+                          {report.category
+                            ? getCategoryName(report.category)
+                            : "Desconocida"}
                         </td>
                         <td className="px-4 py-3 text-gray-600">
                           {report.description}

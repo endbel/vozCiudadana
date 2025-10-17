@@ -8,12 +8,12 @@ import DetalleIncidencia from "./components/modals/DetalleIncidencia";
 import ReportarIncidencia from "./components/modals/ReportarIncidencia";
 import NotFound from "./components/notFound/NotFound";
 import Sidebar, { type Report } from "./components/sidebar/Sidebar";
-import StepCards from "./components/Steps";
 import { DEFAULT_LOCATION, APP_CONFIG } from "./config/constants";
 import { useReports, type CreateReportForm } from "./hooks/useReports";
 import { UseNavigator } from "./hooks/useNavigator";
 import { calculateAge } from "./lib/calculateAge";
 import "./index.css";
+import StepCards from "./components/steps";
 
 function App() {
   const [showTutorial, setShowTutorial] = useState(false);
