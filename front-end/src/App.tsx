@@ -70,7 +70,7 @@ function App() {
     const fetchReports = async () => {
       try {
         // Usar la ubicación formateada que ya maneja los defaults
-        const [lat, long] = locationFormated as [number, number];
+        // const [lat, long] = locationFormated as [number, number];
         const res = await getReportsByZone(
           -26.080103959386527,
           -58.27712643314597
@@ -147,14 +147,6 @@ function App() {
           images: imageDataUrls, // Usar las Data URLs
         };
 
-        // Calcular el tamaño total del payload
-        const payloadSize = new Blob([JSON.stringify(reportData)]).size;
-        console.log(
-          `Tamaño del payload: ${payloadSize} bytes (${(
-            payloadSize / 1024
-          ).toFixed(2)} KB)`
-        );
-
         await createReport(reportData);
 
         // Recargar reportes desde la base de datos para obtener los datos actualizados
@@ -167,14 +159,10 @@ function App() {
           description: "Tu reporte ha sido enviado y está siendo procesado.",
         });
         setIsModalCreateOpen(false);
-      } catch (error: any) {
-        console.error("Error procesando el reporte:", error);
-
+      } catch {
         // Extraer mensaje de error del backend
         const errorMessage =
-          error?.response?.data?.message ||
-          error?.message ||
-          "Error desconocido al crear el reporte";
+          "Error desconocido al crear el reporte, revisa el contenido enviado.";
 
         // Mostrar toast de error con mensaje descriptivo
         toast.error("Error al crear el reporte", {

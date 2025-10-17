@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateReportDTO } from './dtos/CreateReportDTO';
 import { ResponseReportDTO } from './dtos/ResponseReportDTO';
@@ -89,13 +85,11 @@ export class ReportService {
 
   async createReport(data: CreateReportDTO) {
     try {
-      const textModeration = await this.geminiService.generateText(
+      const textApproved = await this.geminiService.generateText(
         data.description,
       );
-      if (!textModeration.approved) {
-        throw new BadRequestException(
-          `La descripción del reporte fue rechazada: ${textModeration.reason}`,
-        );
+      if (!textApproved) {
+        throw new BadRequestException('Text content not approved');
       }
       for (const imageDataUrl of data.images) {
         // Verificar si es una Data URL
@@ -112,15 +106,13 @@ export class ReportService {
         // Convertir base64 a buffer
         const buffer = Buffer.from(base64Data, 'base64');
 
-        const imageModeration = await this.geminiService.moderateImage(
+        const imageApproved = await this.geminiService.moderateImage(
           buffer,
           mimeType,
         );
 
-        if (!imageModeration.approved) {
-          throw new BadRequestException(
-            `Una de las imágenes fue rechazada: ${imageModeration.reason}`,
-          );
+        if (!imageApproved) {
+          throw new BadRequestException('One or more images not approved');
         }
 
         const uploadedImageUrl = await this.supabaseService.uploadImage(
@@ -154,16 +146,7 @@ export class ReportService {
         images: report.images,
       } as ResponseReportDTO;
     } catch (error) {
-      // Si es una BadRequestException (error de validación), la re-lanzamos tal como está
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-
-      // Para otros errores, lanzamos un error interno del servidor
-      console.error('Unexpected error creating report:', error);
-      throw new InternalServerErrorException(
-        'Error interno del servidor al procesar el reporte',
-      );
+      throw new Error('Error creating report: ' + error.message);
     }
   }
 }
