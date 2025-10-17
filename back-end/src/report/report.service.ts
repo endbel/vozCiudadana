@@ -28,7 +28,7 @@ export class ReportService {
     lat: number,
     long: number,
     radiusInMeters: number = 300,
-  ) {
+  ): Promise<ResponseReportDTO[]> {
     const EARTH_RADIUS_METERS = 6371000; // Radio de la Tierra en metros
     const now = new Date();
     const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
@@ -38,8 +38,11 @@ export class ReportService {
         SELECT
           r.id, 
           r.title, 
+          r.description,
           r.lat, 
           r.long, 
+          r.images,
+          r.category,
           r."createdAt",
           -- 1. Calcular la distancia en una columna temporal
           (${EARTH_RADIUS_METERS} * ACOS(
@@ -63,8 +66,21 @@ export class ReportService {
         distance_meters ASC;
     `;
 
-    const reports = await this.prisma.$queryRaw(query);
-    return reports;
+    const reports = (await this.prisma.$queryRaw(query)) as any[];
+
+    // Convertir los resultados raw al DTO ResponseReportDTO
+    return reports.map(
+      (report) =>
+        ({
+          id: report.id,
+          title: report.title,
+          description: report.description,
+          lat: report.lat,
+          long: report.long,
+          images: report.images,
+          category: report.category,
+        }) as ResponseReportDTO,
+    );
   }
 
   async createReport(data: CreateReportDTO) {
@@ -75,24 +91,37 @@ export class ReportService {
       if (!textApproved) {
         throw new BadRequestException('Text content not approved');
       }
-      for (const imageUrl of data.images) {
-        const response = await fetch(imageUrl);
-        const buffer = await response.arrayBuffer();
-        const mimeType = response.headers.get('content-type') || 'image/jpeg';
+      for (const imageDataUrl of data.images) {
+        // Verificar si es una Data URL
+        if (!imageDataUrl.startsWith('data:image/')) {
+          throw new BadRequestException(
+            'Invalid image format. Expected Data URL.',
+          );
+        }
+
+        // Extraer el MIME type y los datos base64
+        const [header, base64Data] = imageDataUrl.split(',');
+        const mimeType = header.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
+
+        // Convertir base64 a buffer
+        const buffer = Buffer.from(base64Data, 'base64');
+
         const imageApproved = await this.geminiService.moderateImage(
-          Buffer.from(buffer),
+          buffer,
           mimeType,
         );
 
         if (!imageApproved) {
           throw new BadRequestException('One or more images not approved');
         }
+
         const uploadedImageUrl = await this.supabaseService.uploadImage(
-          Buffer.from(buffer),
+          buffer,
           mimeType,
           'voz-ciudadana-bucket',
         );
-        const index = data.images.indexOf(imageUrl);
+
+        const index = data.images.indexOf(imageDataUrl);
         data.images[index] = uploadedImageUrl;
       }
 

@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
 
 export class ResponseReportDTO {
   @IsString()
@@ -11,4 +11,8 @@ export class ResponseReportDTO {
   lat: number;
   @IsNumber()
   long: number;
+  @IsArray()
+  images?: string[];
+  @IsString()
+  category: string;
 }

@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useState } from "react";
+=======
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+>>>>>>> 5577b8d2d5696c9c2f616d319d49c8c6e1321957
 
 type Incident = {
   category: string;
@@ -15,19 +20,24 @@ type DetalleIncidenciaProps = {
   isOpen: boolean;
   onClose: () => void;
   incident: Incident | null;
+  images?: string[]; // URLs de las imágenes
 };
 
 const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({
   isOpen,
   onClose,
   incident,
+<<<<<<< HEAD
+=======
+  images,
+>>>>>>> 5577b8d2d5696c9c2f616d319d49c8c6e1321957
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
   if (!isOpen || !incident) {
     return null;
   }
 
+<<<<<<< HEAD
   // Imágenes de ejemplo si no hay imágenes proporcionadas
   const images = incident.images || [
     "/api/placeholder/400/300",
@@ -35,24 +45,40 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({
     "/api/placeholder/400/300",
   ];
 
+=======
+>>>>>>> 5577b8d2d5696c9c2f616d319d49c8c6e1321957
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    const length = images?.length || 0;
+    if (length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % length);
+    }
   };
-
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    const length = images?.length || 0;
+    if (length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + length) % length);
+    }
   };
 
   const goToImage = (index: number) => {
-    setCurrentImageIndex(index);
+    if (images && index >= 0 && index < images.length) {
+      setCurrentImageIndex(index);
+    }
   };
 
   return (
     <div
+<<<<<<< HEAD
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <motion.main
+=======
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50 p-4"
+      onClick={onClose}
+    >
+      <main
+>>>>>>> 5577b8d2d5696c9c2f616d319d49c8c6e1321957
         className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
         initial={{ scale: 0.97, rotateX: 0 }}
@@ -125,6 +151,7 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({
           </div>
 
           {/* Carrusel de imágenes */}
+<<<<<<< HEAD
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-3">
               Imágenes
@@ -139,28 +166,70 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({
                 />
 
                 {/* Botones de navegación */}
-                {images.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevImage}
-                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70 transition-colors"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70 transition-colors"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </>
-                )}
+=======
+          {images && images.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Imágenes
+              </h3>
+              <div className="relative">
+                {/* Imagen principal */}
+                <div className="relative w-full h-64 bg-gray-200 rounded-lg overflow-hidden">
+                  <img
+                    src={images[currentImageIndex]}
+                    alt={`Imagen ${currentImageIndex + 1} del incidente`}
+                    className="w-full h-full object-cover"
+                  />
 
-                {/* Contador de imágenes */}
-                <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                  {currentImageIndex + 1} / {images.length}
+                  {/* Botones de navegación */}
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70 transition-colors"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70 transition-colors"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Contador de imágenes */}
+                  <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                    {currentImageIndex + 1} / {images.length}
+                  </div>
                 </div>
+
+                {/* Thumbnails */}
+>>>>>>> 5577b8d2d5696c9c2f616d319d49c8c6e1321957
+                {images.length > 1 && (
+                  <div className="flex space-x-2 mt-3 overflow-x-auto pb-2">
+                    {images.map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => goToImage(index)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                          index === currentImageIndex
+                            ? "border-blue-500"
+                            : "border-gray-300 hover:border-gray-400"
+                        }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`Thumbnail ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+<<<<<<< HEAD
 
               {/* Thumbnails */}
               {images.length > 1 && (
@@ -184,8 +253,10 @@ const DetalleIncidencia: React.FC<DetalleIncidenciaProps> = ({
                   ))}
                 </div>
               )}
+=======
+>>>>>>> 5577b8d2d5696c9c2f616d319d49c8c6e1321957
             </div>
-          </div>
+          )}
         </div>
       </motion.main>
     </div>
