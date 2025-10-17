@@ -45,11 +45,20 @@ const steps = [
   },
 ];
 
-export default function StepCards() {
+interface StepCardsProps {
+  onClose: () => void;
+}
+
+export default function StepCards({ onClose }: StepCardsProps) {
   const [currentStep, setCurrentStep] = useState(0);
 
   const nextStep = () => {
-    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Si es el último paso, cerrar el tutorial
+      onClose();
+    }
   };
 
   const prevStep = () => {
@@ -57,31 +66,43 @@ export default function StepCards() {
   };
 
   return (
-    <div className="flex justify-center items-center bg-gray-100 p-6">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg aspect-square flex flex-col rounded-md">
+    <div className="flex justify-center items-center p-6">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg h-[500px] flex flex-col">
         {/* Header */}
-        <header className="bg-blue-600 text-white px-8 py-4 text-base font-medium rounded-t-xl">
-          Tutorial {currentStep + 1} de {steps.length}
+        <header className="bg-blue-600 text-white px-8 py-4 text-base font-medium rounded-t-xl flex justify-between items-center">
+          <span>
+            Tutorial {currentStep + 1} de {steps.length}
+          </span>
+          <button
+            onClick={onClose}
+            className="text-white text-xl font-bold hover:text-gray-200 transition"
+          >
+            ×
+          </button>
         </header>
 
         {/* Main */}
-        <main className="flex-1 p-10 space-y-6 flex flex-col justify-center items-center">
-            <div className="text-[8rem] mb-4 animate-bounce">
-                {steps[currentStep].image}
+        <main className="flex-1 p-8 flex flex-col justify-between items-center min-h-0">
+          <div className="flex flex-col items-center space-y-4 flex-1 justify-center">
+            <div className="text-6xl mb-2 animate-bounce">
+              {steps[currentStep].image}
             </div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            {steps[currentStep].title}
-          </h1>
-          <p className="text-gray-700 leading-relaxed text-center">
-            {steps[currentStep].content}
-          </p>
-          <p className="text-md text-gray-600 italic border-l-4 border-blue-500 pl-3">
-            {steps[currentStep].tip}
-          </p>
+            <h1 className="text-xl font-bold text-gray-800 text-center">
+              {steps[currentStep].title}
+            </h1>
+            <p className="text-gray-700 leading-relaxed text-center text-sm line-clamp-4 overflow-hidden">
+              {steps[currentStep].content}
+            </p>
+          </div>
+          <div className="mt-4">
+            <p className="text-sm text-gray-600 italic border-l-4 border-blue-500 pl-3 text-center">
+              {steps[currentStep].tip}
+            </p>
+          </div>
         </main>
 
         {/* Footer */}
-        <footer className="flex justify-between items-center px-10 py-6 bg-gray-50 rounded-b-xl">
+        <footer className="flex justify-between items-center px-8 py-4 bg-gray-50 rounded-b-xl">
           <button
             onClick={prevStep}
             disabled={currentStep === 0}
@@ -91,8 +112,7 @@ export default function StepCards() {
           </button>
           <button
             onClick={nextStep}
-            disabled={currentStep === steps.length - 1}
-            className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
             {currentStep === steps.length - 1 ? "Finalizar" : "Siguiente"}
           </button>
