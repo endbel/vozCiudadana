@@ -117,10 +117,14 @@ function App() {
           incident={{
             category: selectedReport.category,
             title: selectedReport.title,
-            status: 'Pendiente' as const, // Valor por defecto
             reportedAt: selectedReport.date,
             location: "Ubicación no especificada", // Valor por defecto
-            description: selectedReport.description
+            description: selectedReport.description,
+            images: [
+              '/api/placeholder/400/300',
+              '/api/placeholder/400/300',
+              '/api/placeholder/400/300'
+            ] // Imágenes de ejemplo
           }}
         />
       )}
