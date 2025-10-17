@@ -6,7 +6,7 @@ import { calculateAge } from "./lib/calculateAge";
 import FechaDeNacimiento from "./components/auth/FechaDeNacimiento";
 import ReportarIncidencia from "./components/modals/ReportarIncidencia";
 import DetalleIncidencia from "./components/modals/DetalleIncidencia";
-// import StepCards from "./components/steps"
+import StepCards from "./components/steps";
 
 interface CreateReportForm {
   title: string;
@@ -16,6 +16,7 @@ interface CreateReportForm {
 }
 
 function App() {
+  const [showTutorial, setShowTutorial] = useState(false);
   const [age, setAge] = useState<number | null>(null);
   const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -27,7 +28,7 @@ function App() {
       description: "Hay un bache muy grande que puede dañar los vehículos",
       category: "Bache",
       date: "2024-01-15",
-      image: null
+      image: null,
     },
     {
       id: "2",
@@ -35,8 +36,8 @@ function App() {
       description: "Las luces de la calle están apagadas desde hace una semana",
       category: "Alumbrado",
       date: "2024-01-14",
-      image: null
-    }
+      image: null,
+    },
   ]);
 
   useEffect(() => {
@@ -59,15 +60,15 @@ function App() {
         title: reportForm.title,
         description: reportForm.description,
         category: reportForm.category,
-        date: new Date().toISOString().split('T')[0],
-        image: reportForm.image
+        date: new Date().toISOString().split("T")[0],
+        image: reportForm.image,
       };
-      
+
       console.log("Reporte enviado:", newReport);
-      
+
       // Agregar el reporte a la lista
       setReports([...reports, newReport]);
-      
+
       // Cerrar el modal
       setIsModalCreateOpen(false);
     }
@@ -86,43 +87,59 @@ function App() {
 
   return (
     <div className="w-screen h-screen flex relative">
-      <Sidebar 
+      <Sidebar
+        onTutorialToggle={setShowTutorial}
         onOpenModal={() => setIsModalCreateOpen(!isModalCreateOpen)}
         reports={reports}
         onReportClick={handleReportClick}
       />
-
       {/* Mapa ocupa el resto del espacio */}
       <div className="flex-1 relative z-0">
         <Map className="w-full h-full" />
       </div>
-
       {/* <div>
         <StepCards />
       </div> */}
-      
       {/* Modal para crear reportes */}
       {isModalCreateOpen && (
-        <ReportarIncidencia 
+        <ReportarIncidencia
           onClose={() => setIsModalCreateOpen(false)}
-          onSubmit={handleSubmit} 
+          onSubmit={handleSubmit}
         />
       )}
-
       {/* Modal para ver detalles */}
       {isDetailModalOpen && selectedReport && (
-        <DetalleIncidencia 
+        <DetalleIncidencia
           isOpen={isDetailModalOpen}
           onClose={() => setIsDetailModalOpen(false)}
           incident={{
             category: selectedReport.category,
             title: selectedReport.title,
-            status: 'Pendiente' as const, // Valor por defecto
+            status: "Pendiente" as const, // Valor por defecto
             reportedAt: selectedReport.date,
             location: "Ubicación no especificada", // Valor por defecto
-            description: selectedReport.description
+            description: selectedReport.description,
           }}
         />
+      )}
+      {/* Botón para mostrar tutorial
+      <button
+        onClick={() => setShowTutorial(true)}
+        className="absolute top-4 left-4 z-10 w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors"
+      >
+        <span className="text-lg font-medium">?</span>
+      </button> */}
+      {/* Contenido principal */}
+      {/* <div className="flex-1 flex items-center justify-center">
+          <h1 className="text-2xl font-bold text-gray-800">La Voz Ciudadana</h1>
+        </div> */}
+      {/* StepCards superpuesto cuando showTutorial es true */}
+      {showTutorial && (
+        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="max-w-lg w-full mx-4">
+            <StepCards onClose={() => setShowTutorial(false)} />
+          </div>
+        </div>
       )}
     </div>
   );

@@ -84,7 +84,7 @@ const makersPrueba: MarkerData[] = [
 
 export default function Map({
   center = [19.4326, -99.1332],
-  zoom = 13,
+  zoom = 18,
   className = "w-full h-full",
 }: MapProps) {
   return (
