@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ReportarIncidenciaProps {
   onClose: () => void;
@@ -98,11 +99,13 @@ export default function ReportarIncidencia({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50 p-4"
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+
       onClick={onClose}
     >
-      <main
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in flex flex-col max-h-[90vh]"
+      <main //este es el contenedor principal del modal
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative flex flex-col max-h-[90vh] animate-modalFadeIn"
+
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -112,7 +115,7 @@ export default function ReportarIncidencia({
         >
           &times;
         </button>
-        <h2 className="text-center text-3xl font-extrabold mb-7 mt-2 text-gray-800 tracking-tight flex-shrink-0">
+        <h2 className="text-center text-3xl font-bold arial mb-7 mt-2 text-gray-800 tracking-tight flex-shrink-0 ">
           Reportar Incidente
         </h2>
         <div className="overflow-y-auto pr-4 -mr-4">
@@ -146,7 +149,7 @@ export default function ReportarIncidencia({
                 </button>
               ))}
             </div>
-            <div className="font-semibold text-gray-700">
+            <div className="font-semibold text-gray-700 ">
               Título <span className="text-red-500">*</span>
             </div>
             <input
