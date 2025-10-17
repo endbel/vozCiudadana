@@ -15,4 +15,7 @@ export class CreateReportDTO {
 
   @IsArray()
   images: string[];
+
+  @IsString()
+  category: string;
 }

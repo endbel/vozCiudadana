@@ -1,12 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateReportDTO } from './dtos/CreateReportDTO';
 import { ResponseReportDTO } from './dtos/ResponseReportDTO';
-import { Prisma } from '@prisma/client';
+import { Category, Prisma } from '@prisma/client';
+import { SupabaseService } from 'src/supabase/supabase.service';
+import { GeminiService } from 'src/gemini/gemini.service';
 
 @Injectable()
 export class ReportService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private supabaseService: SupabaseService,
+    private geminiService: GeminiService,
+  ) {}
 
   async getReports() {
     return await this.prisma.report.findMany({});
@@ -63,7 +69,33 @@ export class ReportService {
 
   async createReport(data: CreateReportDTO) {
     try {
-      // Sin transacción - más eficiente para operaciones individuales
+      const textApproved = await this.geminiService.generateText(
+        data.description,
+      );
+      if (!textApproved) {
+        throw new BadRequestException('Text content not approved');
+      }
+      for (const imageUrl of data.images) {
+        const response = await fetch(imageUrl);
+        const buffer = await response.arrayBuffer();
+        const mimeType = response.headers.get('content-type') || 'image/jpeg';
+        const imageApproved = await this.geminiService.moderateImage(
+          Buffer.from(buffer),
+          mimeType,
+        );
+
+        if (!imageApproved) {
+          throw new BadRequestException('One or more images not approved');
+        }
+        const uploadedImageUrl = await this.supabaseService.uploadImage(
+          Buffer.from(buffer),
+          mimeType,
+          'voz-ciudadana-bucket',
+        );
+        const index = data.images.indexOf(imageUrl);
+        data.images[index] = uploadedImageUrl;
+      }
+
       const report = await this.prisma.report.create({
         data: {
           title: data.title,
@@ -71,6 +103,7 @@ export class ReportService {
           lat: data.lat,
           long: data.long,
           images: data.images,
+          category: data.category as Category,
         },
       });
 
@@ -78,6 +111,7 @@ export class ReportService {
         id: report.id,
         title: report.title,
         description: report.description,
+        category: report.category,
         lat: report.lat,
         long: report.long,
         images: report.images,
