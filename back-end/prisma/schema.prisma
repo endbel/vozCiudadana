@@ -15,5 +15,16 @@ model Report {
   lat  Float 
   long Float
   createdAt DateTime @default(now())
+  category Category @default(OTHER)
 }
 
+enum Category {
+  POTHOLE
+  STREET_LIGHT
+  GRAFFITI
+  ACCIDENT
+  FLOODING
+  GARBAGE
+  FALLEN_TREE
+  OTHER
+}
