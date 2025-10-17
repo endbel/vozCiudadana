@@ -1,5 +1,10 @@
 import { useState } from "react";
 
+interface ReportarIncidenciaProps {
+  onClose: () => void;
+  onSubmit?: (report: {title: string, description: string, category: string, image: File | null}) => void;
+}
+
 const categorias = [
   "Bache",
   "Alumbrado",
@@ -11,15 +16,31 @@ const categorias = [
   "Otro",
 ];
 
-export default function ReportarIncidencia() {
+export default function ReportarIncidencia({ onClose, onSubmit }: ReportarIncidenciaProps) {
   const [categoria, setCategoria] = useState("");
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSubmit) {
+      onSubmit({title: titulo, description: descripcion, category: categoria, image});
+    }
+    onClose(); // Cerrar modal después de enviar
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <main className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in flex flex-col max-h-[90vh]">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50 p-4"
+      onClick={onClose}
+    >
+      <main 
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
+          onClick={onClose}
           className="absolute left-1/2 -top-7 -translate-x-1/2 bg-neutral-900 text-white rounded-full w-11 h-11 flex items-center justify-center text-2xl shadow-lg hover:bg-neutral-700 transition focus:outline-none border-4 border-white"
           aria-label="Cerrar"
         >
@@ -39,7 +60,7 @@ export default function ReportarIncidencia() {
               </span>
             </div>
           </div>
-          <form className="flex flex-col gap-4">
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <div className="font-semibold text-gray-700">
               Categoría <span className="text-red-500">*</span>
             </div>
@@ -89,6 +110,7 @@ export default function ReportarIncidencia() {
             </div>
             
             <button
+              type="submit"
               className="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition font-bold text-lg shadow-md mt-2 disabled:bg-blue-300 disabled:cursor-not-allowed"
               disabled={!categoria || !titulo || !descripcion}
             >
