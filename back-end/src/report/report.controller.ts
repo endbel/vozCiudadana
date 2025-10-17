@@ -15,6 +15,8 @@ export class ReportController {
 
   @Post()
   create(@Body() dto: CreateReportDTO) {
+    console.log(dto);
+
     if (!dto.title) {
       throw new NotFoundException('Title is required');
     }

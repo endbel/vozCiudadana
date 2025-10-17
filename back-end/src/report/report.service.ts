@@ -75,24 +75,37 @@ export class ReportService {
       if (!textApproved) {
         throw new BadRequestException('Text content not approved');
       }
-      for (const imageUrl of data.images) {
-        const response = await fetch(imageUrl);
-        const buffer = await response.arrayBuffer();
-        const mimeType = response.headers.get('content-type') || 'image/jpeg';
+      for (const imageDataUrl of data.images) {
+        // Verificar si es una Data URL
+        if (!imageDataUrl.startsWith('data:image/')) {
+          throw new BadRequestException(
+            'Invalid image format. Expected Data URL.',
+          );
+        }
+
+        // Extraer el MIME type y los datos base64
+        const [header, base64Data] = imageDataUrl.split(',');
+        const mimeType = header.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
+
+        // Convertir base64 a buffer
+        const buffer = Buffer.from(base64Data, 'base64');
+
         const imageApproved = await this.geminiService.moderateImage(
-          Buffer.from(buffer),
+          buffer,
           mimeType,
         );
 
         if (!imageApproved) {
           throw new BadRequestException('One or more images not approved');
         }
+
         const uploadedImageUrl = await this.supabaseService.uploadImage(
-          Buffer.from(buffer),
+          buffer,
           mimeType,
           'voz-ciudadana-bucket',
         );
-        const index = data.images.indexOf(imageUrl);
+
+        const index = data.images.indexOf(imageDataUrl);
         data.images[index] = uploadedImageUrl;
       }
 
