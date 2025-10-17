@@ -17,7 +17,7 @@ export interface Report {
   description: string;
   category: string;
   date: string;
-  image?: File | null;
+  images?: File[];
 }
 
 const categories = [

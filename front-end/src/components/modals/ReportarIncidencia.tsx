@@ -2,7 +2,12 @@ import { useState } from "react";
 
 interface ReportarIncidenciaProps {
   onClose: () => void;
-  onSubmit?: (report: {title: string, description: string, category: string, image: File | null}) => void;
+  onSubmit?: (report: {
+    title: string;
+    description: string;
+    category: string;
+    images: File[];
+  }) => void;
 }
 
 const categorias = [
@@ -16,26 +21,87 @@ const categorias = [
   "Otro",
 ];
 
-export default function ReportarIncidencia({ onClose, onSubmit }: ReportarIncidenciaProps) {
+export default function ReportarIncidencia({
+  onClose,
+  onSubmit,
+}: ReportarIncidenciaProps) {
   const [categoria, setCategoria] = useState("");
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  
+  const [images, setImages] = useState<File[]>([]);
+  const [imagesPreviews, setImagesPreviews] = useState<string[]>([]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    // Validar que no se excedan 3 imágenes
+    const totalImages = images.length + files.length;
+    if (totalImages > 3) {
+      alert("Solo puedes subir un máximo de 3 imágenes");
+      return;
+    }
+
+    // Validar tipo de archivo (solo imágenes)
+    const validFiles = files.filter((file) => {
+      const isImage = file.type.startsWith("image/");
+      if (!isImage) {
+        alert(`${file.name} no es una imagen válida`);
+      }
+      return isImage;
+    });
+
+    // Validar tamaño (máximo 5MB por imagen)
+    const validSizeFiles = validFiles.filter((file) => {
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        alert(`${file.name} es muy grande. Máximo 5MB por imagen`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validSizeFiles.length === 0) return;
+
+    // Crear previsualizaciones
+    const newPreviews: string[] = [];
+    validSizeFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        newPreviews.push(e.target?.result as string);
+        if (newPreviews.length === validSizeFiles.length) {
+          setImagesPreviews((prev) => [...prev, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    setImages((prev) => [...prev, ...validSizeFiles]);
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImagesPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSubmit) {
-      onSubmit({title: titulo, description: descripcion, category: categoria, image});
+      onSubmit({
+        title: titulo,
+        description: descripcion,
+        category: categoria,
+        images,
+      });
     }
     onClose(); // Cerrar modal después de enviar
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50 p-4"
       onClick={onClose}
     >
-      <main 
+      <main
         className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -91,7 +157,7 @@ export default function ReportarIncidencia({ onClose, onSubmit }: ReportarIncide
               placeholder="Ej: Bache en avenida principal"
               required
             />
-            
+
             <div>
               <div className="font-semibold text-gray-700 mb-2">
                 Descripción <span className="text-red-500">*</span>
@@ -108,7 +174,85 @@ export default function ReportarIncidencia({ onClose, onSubmit }: ReportarIncide
                 {descripcion.length} / 200
               </div>
             </div>
-            
+
+            {/* Sección de subida de imágenes */}
+            <div>
+              <div className="block mb-2 text-sm font-medium text-gray-700">
+                Imágenes (Máximo 3){" "}
+                <span className="text-gray-500">- Opcional</span>
+              </div>
+
+              {/* Vista previa de imágenes */}
+              {imagesPreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {imagesPreviews.map((preview, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-20 object-cover rounded-lg border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Input de archivos */}
+              {images.length < 3 && (
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="images"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer">
+                    <div className="text-gray-600">
+                      <svg
+                        className="mx-auto h-12 w-12 text-gray-400 mb-2"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 48 48"
+                      >
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <p className="text-sm font-medium">
+                        Haz clic para subir imágenes
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        PNG, JPG, JPEG hasta 5MB cada una
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {images.length}/3 imágenes subidas
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {images.length >= 3 && (
+                <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-green-700 text-sm font-medium">
+                    ✓ Has alcanzado el límite máximo de 3 imágenes
+                  </p>
+                </div>
+              )}
+            </div>
+
             <button
               type="submit"
               className="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition font-bold text-lg shadow-md mt-2 disabled:bg-blue-300 disabled:cursor-not-allowed"

@@ -6,13 +6,13 @@ import { calculateAge } from "./lib/calculateAge";
 import FechaDeNacimiento from "./components/auth/FechaDeNacimiento";
 import ReportarIncidencia from "./components/modals/ReportarIncidencia";
 import DetalleIncidencia from "./components/modals/DetalleIncidencia";
-import StepCards from "./components/steps";
+import StepCards from "./components/Steps";
 
 interface CreateReportForm {
   title: string;
   description: string;
   category: string;
-  image: File | null;
+  images: File[];
 }
 
 function App() {
@@ -28,7 +28,7 @@ function App() {
       description: "Hay un bache muy grande que puede dañar los vehículos",
       category: "Bache",
       date: "2024-01-15",
-      image: null,
+      images: [],
     },
     {
       id: "2",
@@ -36,7 +36,7 @@ function App() {
       description: "Las luces de la calle están apagadas desde hace una semana",
       category: "Alumbrado",
       date: "2024-01-14",
-      image: null,
+      images: [],
     },
   ]);
 
@@ -61,7 +61,7 @@ function App() {
         description: reportForm.description,
         category: reportForm.category,
         date: new Date().toISOString().split("T")[0],
-        image: reportForm.image,
+        images: reportForm.images,
       };
 
       console.log("Reporte enviado:", newReport);
