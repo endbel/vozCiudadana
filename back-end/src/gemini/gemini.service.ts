@@ -11,7 +11,7 @@ export class GeminiService {
     }
 
     this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    console.log('GeminiService initialized with GoogleGenAI');
+    // GeminiService initialized with GoogleGenAI
   }
 
   async generateText(texto: string): Promise<boolean> {
@@ -24,8 +24,8 @@ export class GeminiService {
       });
 
       return res.text?.trim().toUpperCase() === 'APROBADO';
-    } catch (error) {
-      console.log('Error generating text with Gemini:', error);
+    } catch {
+      // Error generating text with Gemini
       throw new InternalServerErrorException('Text generation service error');
     }
   }

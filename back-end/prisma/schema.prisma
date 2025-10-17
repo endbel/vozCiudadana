@@ -18,12 +18,18 @@ model Report {
   category Category @default(OTHER)
 }
 
+model Person {
+  id       String   @id @default(cuid())
+  email    String   @unique
+  password String
+}
+
 enum Category {
   POTHOLE
   STREET_LIGHT
   GRAFFITI
   ACCIDENT
-  FLOODING
+  FLOOD
   GARBAGE
   FALLEN_TREE
   OTHER

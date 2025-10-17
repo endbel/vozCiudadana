@@ -1,5 +1,6 @@
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useState } from "react";
+import { Validators } from "../../utils/validators";
 
 interface LoginProps {
   onLogin: (email: string, password: string) => void;
@@ -23,22 +24,20 @@ export default function Login({
   }>({});
 
   const validateForm = () => {
+    const validation = Validators.validateLoginForm({ email, password });
+
+    // Convertir errores de array a objeto para compatibilidad
     const errors: { email?: string; password?: string } = {};
-
-    if (!email) {
-      errors.email = "El email es requerido";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = "Email inválido";
-    }
-
-    if (!password) {
-      errors.password = "La contraseña es requerida";
-    } else if (password.length < 6) {
-      errors.password = "La contraseña debe tener al menos 6 caracteres";
-    }
+    validation.errors.forEach((error) => {
+      if (error.includes("email") || error.includes("Email")) {
+        errors.email = error;
+      } else if (error.includes("contraseña")) {
+        errors.password = error;
+      }
+    });
 
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    return validation.isValid;
   };
 
   const handleSubmit = (e: React.FormEvent) => {

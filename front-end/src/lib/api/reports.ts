@@ -25,3 +25,10 @@ export async function getReportsByZone(lat: number, long: number) {
 
   return response.data;
 }
+
+export async function getAllReports(): Promise<any[]> {
+  const response = await axios.post(
+    `${import.meta.env.VITE_API_URL}/report/all`
+  );
+  return response.data;
+}

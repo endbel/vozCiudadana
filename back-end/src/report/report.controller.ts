@@ -5,9 +5,11 @@ import {
   Get,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { CreateReportDTO } from './dtos/CreateReportDTO';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('report')
 export class ReportController {
@@ -46,5 +48,11 @@ export class ReportController {
       Number(lat),
       Number(long),
     );
+  }
+
+  @Post('all')
+  @UseGuards(AuthGuard('jwt'))
+  async getAllReports() {
+    return await this.reportService.getReports();
   }
 }

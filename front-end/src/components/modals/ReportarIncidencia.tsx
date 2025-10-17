@@ -11,16 +11,14 @@ interface ReportarIncidenciaProps {
   }) => void;
 }
 
-const categorias = [
-  { field: "Bache", label: "POTHOLE" },
-  { field: "Alumbrado", label: "STREET_LIGHT" },
-  { field: "Graffiti", label: "GRAFFITI" },
-  { field: "Accidente", label: "ACCIDENT" },
-  { field: "Inundación", label: "FLOOD" },
-  { field: "Basura", label: "GARBAGE" },
-  { field: "Árbol caído", label: "FALLEN_TREE" },
-  { field: "Otro", label: "OTHER" },
-];
+import {
+  CATEGORY_MAPPING,
+  IMAGE_CONFIG,
+  TEXT_LIMITS,
+} from "../../config/constants";
+import { ImageService } from "../../services/imageService";
+
+const categorias = CATEGORY_MAPPING;
 
 export default function ReportarIncidencia({
   onClose,
@@ -35,48 +33,31 @@ export default function ReportarIncidencia({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
 
-    // Validar que no se excedan 3 imágenes
-    const totalImages = images.length + files.length;
-    if (totalImages > 3) {
-      alert("Solo puedes subir un máximo de 3 imágenes");
+    // Usar el servicio de validación de imágenes
+    const validation = ImageService.validateImageFiles(files, images.length);
+
+    if (!validation.valid) {
+      // Mostrar errores
+      validation.errors.forEach((error) => alert(error));
       return;
     }
 
-    // Validar tipo de archivo (solo imágenes)
-    const validFiles = files.filter((file) => {
-      const isImage = file.type.startsWith("image/");
-      if (!isImage) {
-        alert(`${file.name} no es una imagen válida`);
-      }
-      return isImage;
-    });
-
-    // Validar tamaño (máximo 5MB por imagen)
-    const validSizeFiles = validFiles.filter((file) => {
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        alert(`${file.name} es muy grande. Máximo 5MB por imagen`);
-        return false;
-      }
-      return true;
-    });
-
-    if (validSizeFiles.length === 0) return;
+    if (validation.validFiles.length === 0) return;
 
     // Crear previsualizaciones
     const newPreviews: string[] = [];
-    validSizeFiles.forEach((file) => {
+    validation.validFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         newPreviews.push(e.target?.result as string);
-        if (newPreviews.length === validSizeFiles.length) {
+        if (newPreviews.length === validation.validFiles.length) {
           setImagesPreviews((prev) => [...prev, ...newPreviews]);
         }
       };
       reader.readAsDataURL(file);
     });
 
-    setImages((prev) => [...prev, ...validSizeFiles]);
+    setImages((prev) => [...prev, ...validation.validFiles]);
   };
 
   const removeImage = (index: number) => {
@@ -174,13 +155,13 @@ export default function ReportarIncidencia({
               <textarea
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
-                maxLength={200}
+                maxLength={TEXT_LIMITS.description}
                 className="w-full h-24 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 placeholder-gray-400 bg-gray-50 resize-none"
                 placeholder="Añade detalles adicionales sobre el incidente..."
                 required
               />
               <div className="text-right text-xs text-gray-500 mt-1">
-                {descripcion.length} / 200
+                {descripcion.length} / {TEXT_LIMITS.description}
               </div>
             </div>
 
@@ -214,7 +195,7 @@ export default function ReportarIncidencia({
               )}
 
               {/* Input de archivos */}
-              {images.length < 3 && (
+              {images.length < IMAGE_CONFIG.maxFiles && (
                 <div className="relative">
                   <input
                     type="file"
@@ -246,17 +227,18 @@ export default function ReportarIncidencia({
                         PNG, JPG, JPEG hasta 5MB cada una
                       </p>
                       <p className="text-xs text-gray-500">
-                        {images.length}/3 imágenes subidas
+                        {images.length}/{IMAGE_CONFIG.maxFiles} imágenes subidas
                       </p>
                     </div>
                   </div>
                 </div>
               )}
 
-              {images.length >= 3 && (
+              {images.length >= IMAGE_CONFIG.maxFiles && (
                 <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-green-700 text-sm font-medium">
-                    ✓ Has alcanzado el límite máximo de 3 imágenes
+                    ✓ Has alcanzado el límite máximo de {IMAGE_CONFIG.maxFiles}{" "}
+                    imágenes
                   </p>
                 </div>
               )}

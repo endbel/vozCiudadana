@@ -1,7 +1,9 @@
 import { LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getReportsByZone } from "../../lib/api/reports";
+import { getAllReports } from "../../lib/api/reports";
+import { isAuthenticated, logout } from "../../services/authService";
+import { APP_CONFIG } from "../../config/constants";
 
 interface Report {
   id: string | number;
@@ -22,8 +24,12 @@ export default function AdminPanel() {
   const [categoryFilter, setCategoryFilter] = useState("Todas");
 
   useEffect(() => {
-    const adminStatus = localStorage.getItem("adminLoggedIn");
-    if (adminStatus === "true") {
+    // Verificar autenticación JWT o fallback
+    const jwtAuthenticated = isAuthenticated();
+    const fallbackAuthenticated =
+      localStorage.getItem(APP_CONFIG.storageKeys.adminLoggedIn) === "true";
+
+    if (jwtAuthenticated || fallbackAuthenticated) {
       setIsLoggedIn(true);
     } else {
       navigate("/admin");
@@ -34,10 +40,7 @@ export default function AdminPanel() {
     async function fetchReports() {
       try {
         // Puedes ajustar la lat/long si quieres filtrar por zona
-        const res = await getReportsByZone(
-          -26.080103959386527,
-          -58.27712643314597
-        );
+        const res = await getAllReports();
         setReports(res);
       } catch {
         setReports([]);
@@ -47,7 +50,9 @@ export default function AdminPanel() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("adminLoggedIn");
+    // Logout JWT y limpiar almacenamiento local
+    logout();
+    localStorage.removeItem(APP_CONFIG.storageKeys.adminLoggedIn);
     setIsLoggedIn(false);
     navigate("/");
   };
@@ -115,14 +120,14 @@ export default function AdminPanel() {
               className="border border-gray-300 rounded-lg px-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Todas">Todas</option>
-              <option value="Bache">Bache</option>
-              <option value="Alumbrado">Alumbrado</option>
-              <option value="Graffiti">Graffiti</option>
-              <option value="Accidente">Accidente</option>
-              <option value="Inundación">Inundación</option>
-              <option value="Basura">Basura</option>
-              <option value="Árbol caído">Árbol caído</option>
-              <option value="Otro">Otro</option>
+              <option value="POTHOLE">Bache</option>
+              <option value="STREET_LIGHT">Alumbrado</option>
+              <option value="GRAFFITI">Graffiti</option>
+              <option value="ACCIDENT">Accidente</option>
+              <option value="FLOOD">Inundación</option>
+              <option value="GARBAGE">Basura</option>
+              <option value="FALLEN_TREE">Árbol caído</option>
+              <option value="OTHER">Otro</option>
             </select>
             <span className="text-sm text-gray-500">
               Total: {filteredReports.length} reportes
@@ -131,85 +136,87 @@ export default function AdminPanel() {
 
           {/* Tabla de incidencias */}
           <div className="overflow-x-auto bg-white rounded-xl shadow-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Título
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Categoría
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Descripción
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Fecha
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Imágenes
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredReports.length === 0 ? (
+            <div className="overflow-y-auto max-h-[calc(100vh-290px)]">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-100">
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="px-4 py-6 text-center text-gray-400"
-                    >
-                      No hay reportes que coincidan con el filtro.
-                    </td>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Título
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Categoría
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Descripción
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Fecha
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Imágenes
+                    </th>
                   </tr>
-                ) : (
-                  filteredReports.map((report: Report, idx: number) => (
-                    <tr
-                      key={report.id || idx}
-                      className="hover:bg-blue-50 transition-colors"
-                    >
-                      <td className="px-4 py-3 font-semibold text-gray-800">
-                        {report.title}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-blue-700 font-bold">
-                        {report.category}
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {report.description}
-                      </td>
-                      <td className="px-4 py-3 text-gray-500">
-                        {report.date || "-"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {report.images &&
-                        Array.isArray(report.images) &&
-                        report.images.length > 0 ? (
-                          <div className="flex gap-2">
-                            {(report.images as (string | File)[])
-                              .slice(0, 3)
-                              .map((img: string | File, i: number) => (
-                                <img
-                                  key={i}
-                                  src={
-                                    typeof img === "string"
-                                      ? img
-                                      : URL.createObjectURL(img)
-                                  }
-                                  alt={`img-${i}`}
-                                  className="w-12 h-12 object-cover rounded-lg border"
-                                />
-                              ))}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-gray-400">
-                            Sin imágenes
-                          </span>
-                        )}
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredReports.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="px-4 py-6 text-center text-gray-400"
+                      >
+                        No hay reportes que coincidan con el filtro.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredReports.map((report: Report, idx: number) => (
+                      <tr
+                        key={report.id || idx}
+                        className="hover:bg-blue-50 transition-colors"
+                      >
+                        <td className="px-4 py-3 font-semibold text-gray-800">
+                          {report.title}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-blue-700 font-bold">
+                          {report.category}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {report.description}
+                        </td>
+                        <td className="px-4 py-3 text-gray-500">
+                          {report.date || "-"}
+                        </td>
+                        <td className="px-4 py-3">
+                          {report.images &&
+                          Array.isArray(report.images) &&
+                          report.images.length > 0 ? (
+                            <div className="flex gap-2">
+                              {(report.images as (string | File)[])
+                                .slice(0, 3)
+                                .map((img: string | File, i: number) => (
+                                  <img
+                                    key={i}
+                                    src={
+                                      typeof img === "string"
+                                        ? img
+                                        : URL.createObjectURL(img)
+                                    }
+                                    alt={`img-${i}`}
+                                    className="w-12 h-12 object-cover rounded-lg border"
+                                  />
+                                ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">
+                              Sin imágenes
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </main>

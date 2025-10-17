@@ -6,9 +6,11 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PrismaService } from './prisma/prisma.service';
 import { GeminiModule } from './gemini/gemini.module';
 import { SupabaseModule } from './supabase/supabase.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [ReportModule, PrismaModule, ReportModule, GeminiModule, SupabaseModule],
+  imports: [ReportModule, PrismaModule, ReportModule, GeminiModule, SupabaseModule, AuthModule, UsersModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

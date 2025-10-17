@@ -12,4 +12,7 @@ async function bootstrap() {
   app.enableCors();
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap().catch(console.error);
+bootstrap().catch(() => {
+  // Bootstrap error
+  process.exit(1);
+});

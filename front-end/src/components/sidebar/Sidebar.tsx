@@ -23,17 +23,9 @@ export interface Report {
   long?: number;
 }
 
-const categories = [
-  "Todas",
-  "Bache",
-  "Alumbrado",
-  "Graffiti",
-  "Accidente",
-  "Inundación",
-  "Basura",
-  "Árbol caído",
-  "Otro",
-];
+import { CATEGORIES } from "../../config/constants";
+
+const categories = CATEGORIES;
 
 export default function Sidebar({
   onTutorialToggle,

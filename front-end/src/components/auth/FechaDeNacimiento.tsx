@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { calculateAge } from "../../lib/calculateAge";
+import { Validators } from "../../utils/validators";
 
 type FechaDeNacimientoProps = {
   onDateSelect: (date: string) => void;
@@ -14,20 +14,11 @@ const FechaDeNacimiento: React.FC<FechaDeNacimientoProps> = ({
   const handleVerification = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!birthDate) {
-      setError("Por favor selecciona tu fecha de nacimiento");
-      return;
-    }
+    // Usar el validador centralizado
+    const validation = Validators.validateBirthDate(birthDate);
 
-    const age = calculateAge(birthDate);
-
-    if (age < 13) {
-      setError("Debes tener al menos 13 años para usar esta aplicación");
-      return;
-    }
-
-    if (age > 120) {
-      setError("Por favor verifica que la fecha sea correcta");
+    if (!validation.isValid) {
+      setError(validation.errors[0]); // Mostrar el primer error
       return;
     }
 
