@@ -9,7 +9,8 @@ import type { LatLngExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { MapIcon } from "./MapIcon";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import type { Report } from "../sidebar/Sidebar";
 
 interface MarkerData {
   position: LatLngExpression;
@@ -28,21 +29,53 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
+// Crear el ícono por defecto para el marcador "Yo"
+const defaultIcon = new L.Icon.Default();
+
 interface MapProps {
-  center?: LatLngExpression;
+  center: LatLngExpression;
   zoom?: number;
   className?: string;
+  reports: Report[];
 }
 
 // Componente para manejar marcadores dinámicos según zoom
 function DynamicMarkers({ markers }: { markers: MarkerData[] }) {
-  const [currentZoom, setCurrentZoom] = useState(13);
+  const [currentZoom, setCurrentZoom] = useState(15);
+  const isMountedRef = useRef(true);
+  const mapRef = useRef<any>(null);
 
-  useMapEvents({
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      // Limpiar el mapa cuando el componente se desmonte
+      if (mapRef.current) {
+        try {
+          mapRef.current.off();
+          mapRef.current = null;
+        } catch (error) {
+          console.warn("Error cleaning up map events:", error);
+        }
+      }
+    };
+  }, []);
+
+  const map = useMapEvents({
     zoomend: (e) => {
-      setCurrentZoom(e.target.getZoom());
+      // Solo actualizar si el componente sigue montado
+      if (isMountedRef.current) {
+        setCurrentZoom(e.target.getZoom());
+      }
     },
   });
+
+  // Guardar referencia del mapa para limpieza
+  useEffect(() => {
+    if (map && isMountedRef.current) {
+      mapRef.current = map;
+    }
+  }, [map]);
 
   return (
     <>
@@ -52,7 +85,7 @@ function DynamicMarkers({ markers }: { markers: MarkerData[] }) {
           <Marker
             key={index}
             position={marker.position}
-            icon={MapIcon(marker.color)}
+            icon={marker.popup === "Yo" ? defaultIcon : MapIcon(marker.color)}
           >
             <Popup>{marker.popup}</Popup>
           </Marker>
@@ -61,45 +94,46 @@ function DynamicMarkers({ markers }: { markers: MarkerData[] }) {
   );
 }
 
-const makersPrueba: MarkerData[] = [
-  {
-    position: [19.4326, -99.1332] as LatLngExpression,
-    popup: "Ciudad de México",
-    color: "#EF4444",
-    minZoom: 15, // Se ve solo con zoom >= 10
-  },
-  {
-    position: [34.0522, -118.2437] as LatLngExpression,
-    popup: "Los Ángeles",
-    color: "#3B82F6",
-    minZoom: 15, // Se ve solo con zoom >= 8
-  },
-  {
-    position: [40.7128, -74.006] as LatLngExpression,
-    popup: "Nueva York",
-    color: "#10B981",
-    minZoom: 15, // Se ve solo con zoom >= 12
-  },
-];
-
 export default function Map({
-  center = [19.4326, -99.1332],
-  zoom = 18,
+  center,
+  zoom = 16,
   className = "w-full h-full",
+  reports,
 }: MapProps) {
+  const formatedData: MarkerData[] = reports.map((report) => ({
+    position: [report.lat, report.long] as LatLngExpression,
+    popup: report.title,
+    color: "#EF4444",
+    minZoom: 15,
+  }));
   return (
     <div className={className}>
       <MapContainer
+        key="main-map" // Clave estable para evitar remontajes
         center={center}
         className="h-full w-full"
         scrollWheelZoom={true}
         zoom={zoom}
+        whenReady={() => {
+          // Callback cuando el mapa está listo
+          console.log("Map is ready");
+        }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <DynamicMarkers markers={makersPrueba} />
+        <DynamicMarkers
+          markers={[
+            ...formatedData,
+            {
+              position: [-26.080103959386527, -58.27712643314597],
+              popup: "Yo",
+              color: "#EF4444",
+              minZoom: 15,
+            },
+          ]}
+        />
       </MapContainer>
     </div>
   );
