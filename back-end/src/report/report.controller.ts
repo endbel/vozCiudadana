@@ -3,7 +3,6 @@ import {
   Body,
   Controller,
   Get,
-  NotFoundException,
   Param,
   Post,
 } from '@nestjs/common';
@@ -15,44 +14,37 @@ export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
   @Post()
-  create(@Body() dto: CreateReportDTO) {
+  async create(@Body() dto: CreateReportDTO) {
     if (!dto.title) {
-      throw new NotFoundException('Title is required');
+      throw new BadRequestException('Title is required');
     }
     if (!dto.description) {
-      throw new NotFoundException('Description is required');
+      throw new BadRequestException('Description is required');
     }
     if (!dto.lat) {
-      throw new NotFoundException('Latitude is required');
+      throw new BadRequestException('Latitude is required');
     }
     if (!dto.long) {
-      throw new NotFoundException('Longitude is required');
+      throw new BadRequestException('Longitude is required');
     }
-    try {
-      return this.reportService.createReport(dto);
-    } catch (error) {
-      return new BadRequestException('Error creating report', error);
-    }
+
+    // No necesitamos try-catch aquí, dejamos que las excepciones del servicio se propaguen
+    return await this.reportService.createReport(dto);
   }
 
   @Get('by-zone/:lat/:long')
-  getByZone(@Param('lat') lat: string, @Param('long') long: string) {
+  async getByZone(@Param('lat') lat: string, @Param('long') long: string) {
     if (!lat) {
-      throw new NotFoundException('Latitude is required');
+      throw new BadRequestException('Latitude is required');
     }
     if (!long) {
-      throw new NotFoundException('Longitude is required');
+      throw new BadRequestException('Longitude is required');
     }
-    try {
-      return this.reportService.getReportByCoordinates(
-        Number(lat),
-        Number(long),
-      );
-    } catch (err) {
-      throw new BadRequestException(
-        'Error fetching report by coordinates',
-        err,
-      );
-    }
+
+    // No necesitamos try-catch aquí, dejamos que las excepciones del servicio se propaguen
+    return await this.reportService.getReportByCoordinates(
+      Number(lat),
+      Number(long),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import type { LatLngExpression } from "leaflet";
 import { useEffect, useMemo, useState } from "react";
+import { toast, Toaster } from "sonner";
 import FechaDeNacimiento from "./components/auth/FechaDeNacimiento";
 import LoadingSpinner from "./components/loading/LoadinSpinner";
 import Map from "./components/map/Map";
@@ -146,14 +147,6 @@ function App() {
           images: imageDataUrls, // Usar las Data URLs
         };
 
-        // Calcular el tamaño total del payload
-        const payloadSize = new Blob([JSON.stringify(reportData)]).size;
-        console.log(
-          `Tamaño del payload: ${payloadSize} bytes (${(
-            payloadSize / 1024
-          ).toFixed(2)} KB)`
-        );
-
         await createReport(reportData);
 
         // Recargar reportes desde la base de datos para obtener los datos actualizados
@@ -161,11 +154,21 @@ function App() {
         const updatedReports = await getReportsByZone(lat, long);
         setReports(updatedReports);
 
-        // Cerrar el modal
+        // Mostrar éxito y cerrar modal
+        toast.success("¡Reporte creado exitosamente!", {
+          description: "Tu reporte ha sido enviado y está siendo procesado.",
+        });
         setIsModalCreateOpen(false);
-      } catch (error) {
-        console.error("Error procesando el reporte:", error);
-        // Aquí puedes agregar una notificación de error al usuario
+      } catch {
+        // Extraer mensaje de error del backend
+        const errorMessage =
+          "Error desconocido al crear el reporte, revisa el contenido enviado.";
+
+        // Mostrar toast de error con mensaje descriptivo
+        toast.error("Error al crear el reporte", {
+          description: errorMessage,
+          duration: 5000,
+        });
       }
     }
   };
@@ -234,18 +237,6 @@ function App() {
           }
         />
       )}
-      {/* Botón para mostrar tutorial
-      <button
-        onClick={() => setShowTutorial(true)}
-        className="absolute top-4 left-4 z-10 w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors"
-      >
-        <span className="text-lg font-medium">?</span>
-      </button> */}
-      {/* Contenido principal */}
-      {/* <div className="flex-1 flex items-center justify-center">
-          <h1 className="text-2xl font-bold text-gray-800">La Voz Ciudadana</h1>
-        </div> */}
-      {/* StepCards superpuesto cuando showTutorial es true */}
       {showTutorial && (
         <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex justify-center items-center z-50">
           <div className="max-w-lg w-full mx-4">
@@ -253,6 +244,9 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Toast notifications */}
+      <Toaster position="top-right" richColors expand={true} duration={4000} />
     </div>
   );
 }
