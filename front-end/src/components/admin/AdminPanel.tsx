@@ -1,9 +1,9 @@
 import { LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { APP_CONFIG, CATEGORY_MAPPING } from "../../config/constants";
 import { getAllReports } from "../../lib/api/reports";
 import { isAuthenticated, logout } from "../../services/authService";
-import { APP_CONFIG } from "../../config/constants";
 
 interface Report {
   id: string | number;
@@ -15,7 +15,11 @@ interface Report {
   lat?: number;
   long?: number;
 }
-
+// Utilidad para mapear el valor del backend al nombre en español
+const getCategoryName = (category: string) => {
+  const found = CATEGORY_MAPPING.find((c) => c.label === category);
+  return found ? found.field : category;
+};
 export default function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
@@ -41,6 +45,8 @@ export default function AdminPanel() {
       try {
         // Puedes ajustar la lat/long si quieres filtrar por zona
         const res = await getAllReports();
+        console.log(res);
+
         setReports(res);
       } catch {
         setReports([]);
@@ -168,51 +174,62 @@ export default function AdminPanel() {
                       </td>
                     </tr>
                   ) : (
-                    filteredReports.map((report: Report, idx: number) => (
-                      <tr
-                        key={report.id || idx}
-                        className="hover:bg-blue-50 transition-colors"
-                      >
-                        <td className="px-4 py-3 font-semibold text-gray-800">
-                          {report.title}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-blue-700 font-bold">
-                          {report.category}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {report.description}
-                        </td>
-                        <td className="px-4 py-3 text-gray-500">
-                          {report.date || "-"}
-                        </td>
-                        <td className="px-4 py-3">
-                          {report.images &&
-                          Array.isArray(report.images) &&
-                          report.images.length > 0 ? (
-                            <div className="flex gap-2">
-                              {(report.images as (string | File)[])
-                                .slice(0, 3)
-                                .map((img: string | File, i: number) => (
-                                  <img
-                                    key={i}
-                                    src={
-                                      typeof img === "string"
-                                        ? img
-                                        : URL.createObjectURL(img)
-                                    }
-                                    alt={`img-${i}`}
-                                    className="w-12 h-12 object-cover rounded-lg border"
-                                  />
-                                ))}
-                            </div>
-                          ) : (
-                            <span className="text-xs text-gray-400">
-                              Sin imágenes
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))
+                    filteredReports.map((report: Report, idx: number) => {
+                      const handleRowClick = () => {
+                        if (report.lat && report.long) {
+                          const url = `https://www.google.com/maps?q=${report.lat},${report.long}`;
+                          window.open(url, "_blank");
+                        }
+                      };
+                      return (
+                        <tr
+                          key={report.id || idx}
+                          className="hover:bg-blue-50 transition-colors cursor-pointer"
+                          onClick={handleRowClick}
+                        >
+                          <td className="px-4 py-3 font-semibold text-gray-800">
+                            {report.title}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-blue-700 font-bold">
+                            {report.category
+                              ? getCategoryName(report.category)
+                              : "Desconocida"}
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">
+                            {report.description}
+                          </td>
+                          <td className="px-4 py-3 text-gray-500">
+                            {report.date || "-"}
+                          </td>
+                          <td className="px-4 py-3">
+                            {report.images &&
+                            Array.isArray(report.images) &&
+                            report.images.length > 0 ? (
+                              <div className="flex gap-2">
+                                {(report.images as (string | File)[])
+                                  .slice(0, 3)
+                                  .map((img: string | File, i: number) => (
+                                    <img
+                                      key={i}
+                                      src={
+                                        typeof img === "string"
+                                          ? img
+                                          : URL.createObjectURL(img)
+                                      }
+                                      alt={`img-${i}`}
+                                      className="w-12 h-12 object-cover rounded-lg border"
+                                    />
+                                  ))}
+                              </div>
+                            ) : (
+                              <span className="text-xs text-gray-400">
+                                Sin imágenes
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
