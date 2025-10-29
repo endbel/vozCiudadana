@@ -13,7 +13,7 @@ import { useReports, type CreateReportForm } from "./hooks/useReports";
 import { UseNavigator } from "./hooks/useNavigator";
 import { calculateAge } from "./lib/calculateAge";
 import "./index.css";
-import StepCards from "./components/steps";
+import StepCards from "./components/Steps";
 
 function App() {
   const [showTutorial, setShowTutorial] = useState(false);

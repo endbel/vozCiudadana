@@ -10,7 +10,15 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [ReportModule, PrismaModule, ReportModule, GeminiModule, SupabaseModule, AuthModule, UsersModule],
+  imports: [
+    ReportModule,
+    PrismaModule,
+    ReportModule,
+    GeminiModule,
+    SupabaseModule,
+    AuthModule,
+    UsersModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
